@@ -2,10 +2,10 @@ export const GODS = [
   ['Odin','Allfather'],['Thor','Thunder'],['Freyja','Love & War'],['Freyr','Harvest'],['Loki','Trickster'],['Tyr','Justice'],['Heimdall','Watchman'],['Frigg','Foresight'],['Baldr','Light'],['Idunn','Renewal'],['Sif','Golden Fields'],['Skadi','Winter'],['Njord','Sea'],['Hel','Underworld'],['Bragi','Poetry'],['Vidar','Vengeance'],['Vali','Rebirth'],['Ullr','The Hunt'],['Forseti','Reconciliation'],['Eir','Healing'],['Gefjun','Abundance'],['Ran','Deep Waters'],['Aegir','Ocean']
 ] as const;
 export const DEFAULT_TEAM_NAMES = [
-  'Spartans', 'ANOTICS', 'Viksit Coders', 'XLR8', 'ONE', 'TLE', 'HYDRATE', 'KAYDA',
+  'Spartans', 'ANOTICS', 'Viksit Coders', 'XLR8', 'IdeaForge', 'Glitch Matrix', 'HYDRATE', 'KAYDA',
   'Attention is all you need', 'GALACTUS', 'BrandNewTeam', 'Apex Innovators', 'SevenX',
-  'Team Raven', 'Team Coffee', 'Astral Walker', 'Codeblooded', 'Ironmaster', 'Snapmind-Ai',
-  'kala dhua', 'Solver Squad', 'MPSAC', 'TEAM 23'
+  'Team Raven', 'Team Coffee', 'ASTRAL WALKER', 'CodeBlooded', 'Ironmaster', 'SnapMind-AI',
+  'kala dhua', 'Solver Squad', 'MPSRC', 'HYDRATE'
 ] as const;
 export const PS_IDS = ['PS-01','PS-02','PS-03'] as const;
 export type PsId = typeof PS_IDS[number];
