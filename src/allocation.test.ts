@@ -1,7 +1,7 @@
 import { describe,it,expect } from 'vitest';
 import { allocate,capacity,initialState,markReady,PS_IDS,reassign,resetCouncil,undo } from './allocation';
 describe('council allocation rules',()=>{
- it('starts with 24 unique identities and 8 open seats per realm',()=>{const s=initialState();expect(s.teams).toHaveLength(24);expect(new Set(s.teams.map(t=>t.god)).size).toBe(24);PS_IDS.forEach(ps=>expect(capacity(s,ps)).toBe(0));});
+	 it('starts with 23 unique identities and 8 open seats per realm',()=>{const s=initialState();expect(s.teams).toHaveLength(23);expect(new Set(s.teams.map(t=>t.god)).size).toBe(23);PS_IDS.forEach(ps=>expect(capacity(s,ps)).toBe(0));});
  it('allocates the first open seat and removes the team from the FIFO queue',()=>{let s=markReady(initialState(),'team-01');expect(s.queue).toEqual(['team-01']);const r=allocate(s,'team-01','PS-01');expect(r.state.teams[0].allocation?.seat).toBe(1);expect(r.state.queue).toEqual([]);});
  it('rejects ninth allocation without changing state',()=>{let s=initialState();for(let i=1;i<=8;i++)s=allocate(s,`team-${String(i).padStart(2,'0')}`,'PS-01').state;const r=allocate(s,'team-09','PS-01');expect(r.error).toBeTruthy();expect(r.state).toBe(s);expect(capacity(s,'PS-01')).toBe(8);});
  it('undo restores the previous snapshot',()=>{const s=initialState();const r=allocate(s,'team-01','PS-02');const u=undo(r.state,[s]);expect(u.state.teams[0].allocation).toBeNull();});
@@ -19,9 +19,9 @@ describe('council allocation rules',()=>{
 		const clean=resetCouncil(s);
 		expect(clean.queue).toEqual([]);
 		expect(clean.teams.map(({id,name,god,epithet})=>({id,name,god,epithet}))).toEqual(roster);
-		expect(clean.teams).toHaveLength(24);
+		expect(clean.teams).toHaveLength(23);
 		expect(clean.teams.every(t=>t.allocation===null&&t.readyAt===null)).toBe(true);
 		PS_IDS.forEach(ps=>expect(capacity(clean,ps)).toBe(0));expect(clean.nextOrder).toBe(1);expect(clean.events).toEqual([]);
 	});
- it('reaches an exact 8/8/8 final distribution without duplicate seats',()=>{let s=initialState();for(let i=0;i<24;i++){const ps=PS_IDS[Math.floor(i/8)];s=allocate(s,`team-${String(i+1).padStart(2,'0')}`,ps).state}expect(s.teams.filter(t=>t.allocation)).toHaveLength(24);PS_IDS.forEach(ps=>expect(capacity(s,ps)).toBe(8));expect(new Set(s.teams.map(t=>`${t.allocation?.ps}-${t.allocation?.seat}`)).size).toBe(24);});
+ it('reaches the balanced 8/8/7 final distribution without duplicate seats',()=>{let s=initialState();for(let i=0;i<23;i++){const ps=PS_IDS[Math.floor(i/8)];s=allocate(s,`team-${String(i+1).padStart(2,'0')}`,ps).state}expect(s.teams.filter(t=>t.allocation)).toHaveLength(23);expect(PS_IDS.map(ps=>capacity(s,ps))).toEqual([8,8,7]);expect(new Set(s.teams.map(t=>`${t.allocation?.ps}-${t.allocation?.seat}`)).size).toBe(23);});
 });

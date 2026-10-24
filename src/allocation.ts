@@ -1,5 +1,5 @@
 export const GODS = [
-  ['Odin','Allfather'],['Thor','Thunder'],['Freyja','Love & War'],['Freyr','Harvest'],['Loki','Trickster'],['Tyr','Justice'],['Heimdall','Watchman'],['Frigg','Foresight'],['Baldr','Light'],['Idunn','Renewal'],['Sif','Golden Fields'],['Skadi','Winter'],['Njord','Sea'],['Hel','Underworld'],['Bragi','Poetry'],['Vidar','Vengeance'],['Vali','Rebirth'],['Ullr','The Hunt'],['Forseti','Reconciliation'],['Eir','Healing'],['Gefjun','Abundance'],['Ran','Deep Waters'],['Aegir','Ocean'],['Sol','Sun']
+  ['Odin','Allfather'],['Thor','Thunder'],['Freyja','Love & War'],['Freyr','Harvest'],['Loki','Trickster'],['Tyr','Justice'],['Heimdall','Watchman'],['Frigg','Foresight'],['Baldr','Light'],['Idunn','Renewal'],['Sif','Golden Fields'],['Skadi','Winter'],['Njord','Sea'],['Hel','Underworld'],['Bragi','Poetry'],['Vidar','Vengeance'],['Vali','Rebirth'],['Ullr','The Hunt'],['Forseti','Reconciliation'],['Eir','Healing'],['Gefjun','Abundance'],['Ran','Deep Waters'],['Aegir','Ocean']
 ] as const;
 export const PS_IDS = ['PS-01','PS-02','PS-03'] as const;
 export type PsId = typeof PS_IDS[number];
