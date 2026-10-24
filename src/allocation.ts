@@ -1,13 +1,19 @@
 export const GODS = [
   ['Odin','Allfather'],['Thor','Thunder'],['Freyja','Love & War'],['Freyr','Harvest'],['Loki','Trickster'],['Tyr','Justice'],['Heimdall','Watchman'],['Frigg','Foresight'],['Baldr','Light'],['Idunn','Renewal'],['Sif','Golden Fields'],['Skadi','Winter'],['Njord','Sea'],['Hel','Underworld'],['Bragi','Poetry'],['Vidar','Vengeance'],['Vali','Rebirth'],['Ullr','The Hunt'],['Forseti','Reconciliation'],['Eir','Healing'],['Gefjun','Abundance'],['Ran','Deep Waters'],['Aegir','Ocean']
 ] as const;
+export const DEFAULT_TEAM_NAMES = [
+  'Spartans', 'ANOTICS', 'Viksit Coders', 'XLR8', 'ONE', 'TLE', 'HYDRATE', 'KAYDA',
+  'Attention is all you need', 'GALACTUS', 'BrandNewTeam', 'Apex Innovators', 'SevenX',
+  'Team Raven', 'Team Coffee', 'Astral Walker', 'Codeblooded', 'Ironmaster', 'Snapmind-Ai',
+  'kala dhua', 'Solver Squad', 'MPSAC', 'TEAM 23'
+] as const;
 export const PS_IDS = ['PS-01','PS-02','PS-03'] as const;
 export type PsId = typeof PS_IDS[number];
 export type Team = { id:string; name:string; god:string; epithet:string; readyAt:number|null; allocation: {ps:PsId; seat:number; order:number}|null };
 export type Event = { id:string; text:string; at:number };
 export type State = { teams:Team[]; queue:string[]; events:Event[]; nextOrder:number };
 export function initialState(names?:string[]):State {
-  return {teams:GODS.map(([god,epithet],i)=>({id:`team-${String(i+1).padStart(2,'0')}`,name:names?.[i]?.trim()||`TEAM ${String(i+1).padStart(2,'0')}`,god,epithet,readyAt:null,allocation:null})),queue:[],events:[],nextOrder:1};
+  return {teams:GODS.map(([god,epithet],i)=>({id:`team-${String(i+1).padStart(2,'0')}`,name:names?.[i]?.trim()||DEFAULT_TEAM_NAMES[i]||`TEAM ${String(i+1).padStart(2,'0')}`,god,epithet,readyAt:null,allocation:null})),queue:[],events:[],nextOrder:1};
 }
 export function resetCouncil(state:State):State {
   return {teams:state.teams.map(team=>({...team,readyAt:null,allocation:null})),queue:[],events:[],nextOrder:1};

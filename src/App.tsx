@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Check, ChevronRight, Clock3, Crown, Download, Expand, Hand, History, ListOrdered, Pause, Play, RotateCcw, Settings2, Sparkles, Undo2, X, Zap, Maximize2 } from 'lucide-react';
-import { allocate, capacity, initialState, markReady, PS_IDS, reassign, removeReady, resetCouncil, undo, type PsId, type State, type Team } from './allocation';
+import { allocate, capacity, DEFAULT_TEAM_NAMES, initialState, markReady, PS_IDS, reassign, removeReady, resetCouncil, undo, type PsId, type State, type Team } from './allocation';
 
 const SAVE='ragnarok-council-v1';
 const TEAM_COUNT=23;
@@ -20,7 +20,20 @@ function validGame(value:unknown):value is State {
  return new Set(g.queue).size===g.queue.length&&g.queue.every(id=>ids.has(id)&&g.teams.some(t=>t.id===id&&!t.allocation&&t.readyAt!==null));
 }
 function restore():{game:State;remaining:number;running:boolean;endAt:number|null;migrationTeams:Team[]|null} {
- try{const raw=localStorage.getItem(SAVE);if(raw){const data=JSON.parse(raw);if(validGame(data.game)){const old=data.game as State;const last=old.teams[23];const hasHistory=old.teams.length===24&&old.events.some(event=>event.text.includes(last.name)||event.text.includes(last.god));const isDefaultExtra=old.teams.length===24&&last.id==='team-24'&&last.name==='TEAM 24'&&last.god==='Sol'&&last.allocation===null&&last.readyAt===null&&!old.queue.includes(last.id)&&!hasHistory;const game=old.teams.length===24&&isDefaultExtra?{...old,teams:old.teams.slice(0,TEAM_COUNT)}:old;return{game,remaining:Number.isFinite(data.remaining)?Math.max(0,Math.min(1800,data.remaining)):1800,running:Boolean(data.running&&Number.isFinite(data.endAt)),endAt:Number.isFinite(data.endAt)?data.endAt:null,migrationTeams:game.teams.length===24?game.teams:null}}}}catch{}
+ try{
+  const raw=localStorage.getItem(SAVE);
+  if(raw){
+   const data=JSON.parse(raw);
+   if(validGame(data.game)){
+    const old=data.game as State,last=old.teams[23];
+    const hasHistory=old.teams.length===24&&old.events.some(event=>event.text.includes(last.name)||event.text.includes(last.god));
+    const isDefaultExtra=old.teams.length===24&&last.id==='team-24'&&last.name==='TEAM 24'&&last.god==='Sol'&&last.allocation===null&&last.readyAt===null&&!old.queue.includes(last.id)&&!hasHistory;
+    const trimmed=old.teams.length===24&&isDefaultExtra?{...old,teams:old.teams.slice(0,TEAM_COUNT)}:old;
+    const game=trimmed.teams.length===TEAM_COUNT?{...trimmed,teams:trimmed.teams.map((team,index)=>team.name===`TEAM ${String(index+1).padStart(2,'0')}`?{...team,name:DEFAULT_TEAM_NAMES[index]}:team)}:trimmed;
+    return{game,remaining:Number.isFinite(data.remaining)?Math.max(0,Math.min(1800,data.remaining)):1800,running:Boolean(data.running&&Number.isFinite(data.endAt)),endAt:Number.isFinite(data.endAt)?data.endAt:null,migrationTeams:game.teams.length===24?game.teams:null};
+   }
+  }
+ }catch{}
  const game=initialState();return{game,remaining:1800,running:false,endAt:null,migrationTeams:null};
 }
 
@@ -77,7 +90,7 @@ function CelestialBridgeLayer({reducedMotion}:{reducedMotion:boolean}){
 function GodPortrait({team,size='medium'}:{team:Team;size?:'small'|'medium'|'large'}){const idx=Math.max(0,Number(team.id.split('-')[1])-1);const x=(idx%6)/5*100;const y=Math.floor(idx/6)/3*100;return <span className={`god-portrait portrait-${size}`} style={{backgroundPosition:`${x}% ${y}%`}} role="img" aria-label={`${team.god}, representing ${team.name}`}/>}
 function RagnarokHeader({remaining,running,onStart,onPause,onReset,onFullscreen,onSettings,onUndo,onExport,onLog,onResetAllocation,onFocus,onQueue,queueCount,focused,canUndo,resetDisabled}:{remaining:number;running:boolean;onStart:()=>void;onPause:()=>void;onReset:()=>void;onFullscreen:()=>void;onSettings:()=>void;onUndo:()=>void;onExport:()=>void;onLog:()=>void;onResetAllocation:()=>void;onFocus:()=>void;onQueue:()=>void;queueCount:number;focused:boolean;canUndo:boolean;resetDisabled:boolean}){
  return <header className="ragnarok-header"><div className="brand-lockup"><div className="brand-knot"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4v32M4 20h32M8 8l24 24M32 8 8 32"/><circle cx="20" cy="20" r="3"/></svg></div><div><h1>RAGNAROK</h1><div className="brand-caption">THE COUNCIL OF THE GODS | TANTRAFIESTA</div></div></div>
-  <div className="header-tagline">TWENTY-FOUR TEAMS | THREE DESTINIES | ONE COUNCIL</div>
+  <div className="header-tagline">TWENTY-THREE TEAMS | THREE DESTINIES | ONE COUNCIL</div>
   <div className="timer-instrument"><div className="timer-dial"><span className="dial-mark dm-one"/><span className="dial-mark dm-two"/><span className="dial-mark dm-three"/><Clock3 size={17}/></div><div className="timer-readout"><span className="timer-label">ANALYSIS WINDOW</span><strong>{String(Math.floor(remaining/60)).padStart(2,'0')}<i>:</i>{String(remaining%60).padStart(2,'0')}</strong></div><div className="timer-controls"><button className="hud-action start-action" onClick={running?onPause:onStart} title={running?'Pause timer':remaining<1800?'Resume timer':'Start timer'}>{running?<Pause size={15}/>:<Play size={15}/>}<span>{running?'PAUSE':remaining<1800?'RESUME':'START'}</span></button><button className="hud-action reset-action" onClick={onReset} title="Reset timer"><RotateCcw size={14}/></button></div></div>
   <nav className="hud-tools" aria-label="Organizer tools"><button className="tool-button queue-tool" onClick={onQueue} aria-label={`Raised-hand queue, ${queueCount} waiting`} title="Raised-hand queue"><ListOrdered/>{queueCount>0&&<b>{queueCount}</b>}</button><button className="tool-button" onClick={onUndo} disabled={!canUndo} aria-label="Undo last allocation" title="Undo allocation"><Undo2/></button><button className="tool-button" onClick={onExport} aria-label="Export results" title="Export results"><Download/></button><button className="tool-button" onClick={onLog} aria-label="Event log" title="Event log"><History/></button><button className="tool-button" onClick={onSettings} aria-label="Edit team roster" title="Edit team roster"><Settings2/></button><button className="tool-button" onClick={onFocus} aria-label={focused?'Return to full overview':'Focus on destinations'} title={focused?'Return to overview':'Focus on destinations'}><Maximize2/></button><button className="tool-button reset-allocation-tool" onClick={onResetAllocation} disabled={resetDisabled} aria-label="Return all gods" title={resetDisabled?'The council is already reset':'Return all gods to the Hall'}><RotateCcw/><span>RETURN ALL GODS</span></button><button className="tool-button" onClick={onFullscreen} aria-label="Toggle fullscreen" title="Fullscreen"><Expand/></button></nav>
  </header>
